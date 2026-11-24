@@ -4,14 +4,8 @@ A small local Python app for collecting **circle, triangle, square, and flower**
 
 ## 1. Open the project in VS Code
 
-Choose **File → Open Folder** and open:
-
-```text
-C:\Users\Sharon\Documents\ChatGPT\AI Class 2
-```
-
+Choose **File → Open Folder** 
 Open **Terminal → New Terminal**. Run:
-
 ```powershell
 py --version
 ```
