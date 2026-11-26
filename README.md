@@ -1,73 +1,105 @@
-# My Drawing Dataset
+# My Drawing Dataset Classifier
 
-A small local Python app for collecting **circle, triangle, square, and flower** drawings. Each click of **Save sample** writes a PNG straight to your computer. No chat session or export ZIP is needed.
+I built a drawing app and a neural network that recognizes four shapes—**circle, triangle, square, and flower**.
 
-## 1. Open the project in VS Code
+This project follows the full process of collecting my own images, training a model, saving its learned weights and biases, and testing it on new drawings.
 
-Choose **File → Open Folder** 
-Open **Terminal → New Terminal**. Run:
-```powershell
-py --version
+## How It Works
+
+1. **Collect training drawings**  
+   Draw a shape in the app, select its class, and save it as a 28 × 28 grayscale PNG.
+
+2. **Prepare the data**  
+   Convert each image into 784 input values and scale the pixel values to between 0 and 1. The image’s folder provides its correct class label.
+
+3. **Train the neural network**  
+   Run `train_network.py` to calculate the loss and update the weights and biases over 1,000 training rounds.
+
+4. **Save the model**  
+   Store the learned weights, biases, and class names in `trained_model.npz`.
+
+5. **Collect fresh test drawings**  
+   Draw new shapes and save them separately under `test_drawings/dataset`.
+
+6. **Test the model**  
+   Run `test_network.py` to load the saved model, predict each test drawing’s class, and calculate test accuracy.
+
+## Neural Network
+
+```text
+784 input values → 32 hidden neurons → 4 output probabilities
 ```
 
-If Windows says `py` is not recognized, install Python 3 from [python.org](https://www.python.org/downloads/windows/). In the installer, enable **Add python.exe to PATH**, and keep **Tcl/Tk and IDLE** enabled. Close and reopen VS Code afterward. If `python --version` works but `py` does not, use `python` in place of `py` in the next command.
+The model uses a sigmoid activation in the hidden layer and softmax at the output. Training uses cross-entropy loss and backpropagation.
 
-## 2. One-time setup
+## Results
 
-Run these commands one line at a time in the project terminal:
+### Training
+
+The training dataset contains **215 drawings**.
+
+| Class | Drawings |
+|---|---:|
+| Circle | 50 |
+| Triangle | 65 |
+| Square | 50 |
+| Flower | 50 |
+
+After 1,000 training rounds, the final loss was **0.0007** and the training accuracy was **100.0%**.
+
+![Training output showing the loss decreasing and training accuracy reaching 100%](images/training-result.png)
+
+### Testing
+
+On a separate set of **213 fresh drawings**, the model classified **208 correctly**, achieving **97.7% test accuracy**.
+
+![Test output showing 208 correct predictions out of 213 drawings and 97.7% accuracy](images/test-result.png)
+
+Training accuracy measures performance on the images used for learning. Test accuracy measures performance on the separate drawings collected afterward.
+
+## Main Files
+
+| File | Purpose |
+|---|---|
+| `drawing_collector.py` | Collects and saves labeled training drawings. |
+| `prepare_data.py` | Loads training images and prepares their inputs and labels. |
+| `neural_network.py` | Demonstrates a forward calculation with initial random weights. |
+| `train_network.py` | Trains the model and saves the learned values. |
+| `trained_model.npz` | Stores the learned weights, biases, and class names. |
+| `test_drawings/drawing_collector.py` | Collects fresh test drawings. |
+| `test_network.py` | Loads the saved model and evaluates the test drawings. |
+
+## Setup and Run
+
+This project uses Python, NumPy, Pillow, and Tkinter.
+
+In a Windows terminal opened in the project folder, create an environment and install the dependencies.
 
 ```powershell
 py -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m pip install numpy Pillow
 ```
 
-This creates a Python environment just for this project. You do not need to activate it or change PowerShell's execution policy.
-
-If you use VS Code's Python extension, choose **Python: Select Interpreter** from the command palette (`Ctrl+Shift+P`), then select `.venv\Scripts\python.exe`.
-
-## 3. Run the drawing app
+Collect training drawings.
 
 ```powershell
 .\.venv\Scripts\python.exe drawing_collector.py
 ```
 
-Use that same command every time you return to the project. Keep the terminal open while using the app.
+Train and save the model.
 
-## 4. Test with ONE image first
-
-1. Choose **Flower** and draw a flower by holding the left mouse button.
-2. Click **Save sample**. Check that the status says **Saved:** and the Flower counter increases by one.
-3. Click **Open dataset folder**, then open `flower`. Confirm there is a PNG file. Open it: the actual image is tiny because it is only 28 × 28 pixels. The app shows an enlarged preview.
-4. Close the app and run it again. The Flower counter should still include that sample, and the PNG should still be in the folder.
-5. Only after that succeeds, collect a small batch such as 10 drawings per class.
-
-For each new sample: choose its class, draw, save, then clear the canvas. The Save button disables after a successful save to prevent repeated clicks from saving duplicates. Adding strokes lets you save a revised drawing as another sample. Choose the correct class **before** saving; changing the selector does not move an earlier saved file.
-
-**Saving is explicit:** click Save sample for each drawing. Clearing or closing with an unsaved drawing asks whether to save it. If saving fails, the drawing stays on the canvas and you can retry. A forced shutdown can lose a drawing you have not saved yet.
-
-## Where your drawings live
-
-```text
-Shape_Neural_Networks/
-  drawing_collector.py
-  requirements.txt
-  dataset/
-    circle/
-    triangle/
-    square/
-    flower/
+```powershell
+.\.venv\Scripts\python.exe train_network.py
 ```
 
-The app always uses `dataset` beside `drawing_collector.py`, even if you start it from another folder. Each PNG has a unique filename. Counters are rebuilt from the PNG files when the app starts. Clearing the canvas does not delete saved images. Move or copy the whole project folder if you want to keep the app and dataset together.
+Collect new test drawings.
 
-Each save first writes and flushes a temporary file, then renames the completed file to `.png`. The app only reports success after that finishes. Keep a second copy of the `dataset` folder on another drive or your usual backup service, especially after a drawing session. Local saving does not protect against drive failure or manual deletion.
+```powershell
+.\.venv\Scripts\python.exe .\test_drawings\drawing_collector.py
+```
 
-## What the images mean for your learning
+Evaluate the saved model.
 
-- Every sample is a **28 × 28 grayscale PNG**: one brightness number per pixel, from 0 (black) to 255 (white).
-- The app crops unused black space, fits the drawing within 20 × 20 pixels, and centers it in a 28 × 28 image. This keeps the shape's proportions.
-- The folder name is the **label**: circle, triangle, square, or flower.
-- Later, NumPy can read these images as 28 × 28 arrays and divide by 255 to get values between 0 and 1. Flattening an image gives 784 input values.
-- These are your own four shape classes, not MNIST's ten digit classes. The image dimensions and colors follow an MNIST-style convention. No model training or loss calculation is included yet.
-
-Only the 28 × 28 version is saved; the large drawing canvas is used to make that sample.
+```powershell
+.\.venv\Scripts\python.exe test_network.py
+```
