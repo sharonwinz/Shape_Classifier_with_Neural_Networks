@@ -47,13 +47,9 @@ The training dataset contains **215 drawings**.
 
 After 1,000 training rounds, the final loss was **0.0007** and the training accuracy was **100.0%**.
 
-![Training output showing the loss decreasing and training accuracy reaching 100%](images/training-result.png)
-
 ### Testing
 
 On a separate set of **213 fresh drawings**, the model classified **208 correctly**, achieving **97.7% test accuracy**.
-
-![Test output showing 208 correct predictions out of 213 drawings and 97.7% accuracy](images/test-result.png)
 
 Training accuracy measures performance on the images used for learning. Test accuracy measures performance on the separate drawings collected afterward.
 
